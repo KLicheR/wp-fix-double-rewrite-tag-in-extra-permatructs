@@ -3,7 +3,7 @@
 Plugin Name: Fix Double Rewrite Tag in Extra Permatructs
 Plugin URI: https://github.com/KLicheR/wp-fix-double-rewrite-tag-in-extra-permatructs
 Description: Fix permastructure when you already use rewrite tag in rewrite slug.
-Version: 0.0.1
+Version: 0.0.2
 Author: KLicheR
 Author URI: https://github.com/KLicheR
 License: GPLv2 or later
@@ -50,11 +50,11 @@ class Fix_Double_Rewrite_Tag_In_Extra_Permatructs {
 	public function fix_taxonomy_extra_permastruct($rules = null, $taxonomy_to_fix = null) {
 		// If it's called by a "{taxo}_rewrite_rules" filter, we need to identified
 		// the targeted taxo by checking the filter name.
+		$current_filter = current_filter();
 		if (
 			is_null($taxonomy_to_fix)
-			&& isset($GLOBALS['wp_current_filter'])
-			&& isset($GLOBALS['wp_current_filter'][0])
-			&& preg_match('/(.*)_rewrite_rules$/', $GLOBALS['wp_current_filter'][0], $matches)
+			&& $current_filter
+			&& preg_match('/(.*)_rewrite_rules$/', $current_filter, $matches)
 		) {
 			$taxonomy_to_fix = $matches[1];
 		}
@@ -66,7 +66,6 @@ class Fix_Double_Rewrite_Tag_In_Extra_Permatructs {
 		if (strpos($taxonomy->rewrite['slug'], "%{$taxonomy->name}%") === false) {
 			return $rules;
 		}
-		// echo('<pre>');var_dump('fix_taxonomy_extra_permastruct', 'avant', $rules);//exit;
 
 		global $wp_rewrite;
 
@@ -79,7 +78,6 @@ class Fix_Double_Rewrite_Tag_In_Extra_Permatructs {
 		// Generate the new rules with it.
 		$new_rules = $wp_rewrite->generate_rewrite_rules( $struct['struct'], $struct['ep_mask'], $struct['paged'], $struct['feed'], $struct['forcomments'], $struct['walk_dirs'], $struct['endpoints'] );
 
-		// echo('<pre>');var_dump('fix_taxonomy_extra_permastruct', 'après', $new_rules);//exit;
 		return $new_rules;
 	}
 }
